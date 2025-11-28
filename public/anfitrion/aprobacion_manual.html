@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aprobación de Pagos - Admin</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+        /* Estilos específicos */
+        .admin-box { max-width: 1000px; margin: 40px auto; padding: 30px; background: white; border-radius: 16px; box-shadow: var(--shadow-md); }
+        .admin-box h1 { font-size: 1.8rem; margin-bottom: 20px; }
+        .admin-box h2 { margin-top: 25px; margin-bottom: 15px; color: var(--color-primary); }
+        .admin-form input { margin-top: 5px; }
+        .admin-message { margin-top: 20px; font-weight: 600; }
+        
+        /* Lista de Reservas Pendientes */
+        .reserva-list { 
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .reserva-card {
+            background: var(--color-primary-soft);
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border-left: 5px solid var(--color-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        .reserva-details { flex: 1; }
+        .reserva-details p { margin: 3px 0; color: var(--color-text-soft); }
+        .reserva-details strong { color: var(--color-text); }
+        .reserva-id-display { font-weight: 800; font-size: 1.1rem; color: var(--color-accent); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <a href="/" class="logo">
+          <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
+          QuinchoFinder
+        </a>
+        <nav class="nav">
+            <a href="/anfitrion/dashboard.html">Dashboard</a>
+            <button onclick="logout()" class="btn-primary">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main class="admin-box">
+        <h1>Centro de Control Administrativo</h1>
+        
+        <h2>🚨 Pagos Pendientes de Confirmación</h2>
+        <p>Estas reservas han bloqueado el calendario y están esperando el comprobante de pago.</p>
+        <div id="reserva-list-container" class="reserva-list">
+            <p>Cargando lista...</p>
+        </div>
+        
+        <hr style="margin: 40px 0;">
+
+        <h2>✅ Aprobar Pago Manualmente</h2>
+        <p>Ingresa el ID de la reserva (ej: 5) que deseas CONFIRMAR como PAGADA.</p>
+        
+        <form id="approval-form" class="admin-form">
+            <label for="reserva-id">ID de Reserva a Aprobar:</label>
+            <input type="number" id="reserva-id" name="reserva_id" placeholder="Ej: 5" required>
+
+            <button type="submit" class="btn-primary btn-submit">Confirmar Pago y Reserva</button>
+            <p id="admin-message" class="admin-message"></p>
+        </form>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 QuinchoFinder.</p>
+    </footer>
+
+    <script>
+        const AUTH_TOKEN = localStorage.getItem('authToken');
+        const USER_ROLE = localStorage.getItem('userRole');
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '/login.html';
+        }
+
+        // Protección de acceso
+        if (!AUTH_TOKEN || USER_ROLE !== 'anfitrion') {
+            alert('Acceso no autorizado. Inicia sesión como Anfitrión/Admin.');
+            logout();
+        }
+        
+        // --- FUNCIÓN PRINCIPAL DE CARGA ---
+        async function loadAdminDashboard() {
+            await loadPendingReservas();
+            document.getElementById('approval-form').addEventListener('submit', handleApproval);
+        }
+
+
+        // --- 1. LISTAR RESERVAS PENDIENTES ---
+        async function loadPendingReservas() {
+            const listContainer = document.getElementById('reserva-list-container');
+            listContainer.innerHTML = 'Cargando...';
+
+            try {
+                const response = await fetch('/api/anfitrion/reservas-pendientes', {
+                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.length > 0) {
+                    listContainer.innerHTML = '';
+                    data.forEach(reserva => {
+                        const card = document.createElement('div');
+                        card.className = 'reserva-card';
+                        card.innerHTML = `
+                            <div class="reserva-details">
+                                <p>Reserva ID: <span class="reserva-id-display">${reserva.reserva_id}</span> | Propiedad: <strong>${reserva.nombre_quincho} (${reserva.ciudad})</strong></p>
+                                <p>Cliente: ${reserva.nombre_inquilino} (${reserva.email_inquilino}) | Teléfono: ${reserva.telefono_inquilino}</p>
+                                <p>Monto: <strong>$${reserva.monto_total} ARS</strong> | Fecha: ${new Date(reserva.fecha_inicio).toLocaleDateString()} ${new Date(reserva.fecha_inicio).toLocaleTimeString()}</p>
+                            </div>
+                            <button onclick="document.getElementById('reserva-id').value = ${reserva.reserva_id}" class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem;">Aprobar ID</button>
+                        `;
+                        listContainer.appendChild(card);
+                    });
+                } else if (response.ok && data.length === 0) {
+                    listContainer.innerHTML = '<p>🎉 ¡No hay pagos pendientes de aprobación!</p>';
+                } else {
+                    listContainer.innerHTML = `<p style="color:red;">Error al cargar lista: ${data.error || 'Token inválido'}</p>`;
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<p style="color:red;">Error de conexión con el servidor API.</p>';
+            }
+        }
+
+
+        // --- 2. MANEJADOR DE APROBACIÓN MANUAL ---
+        async function handleApproval(e) {
+            e.preventDefault();
+            const form = e.target;
+            const messageElement = document.getElementById('admin-message');
+            messageElement.textContent = 'Enviando confirmación...';
+            messageElement.style.color = 'black';
+
+            const reservaId = parseInt(form.reserva_id.value);
+
+            try {
+                const response = await fetch('/api/admin/aprobar-pago', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify({ reserva_id: reservaId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageElement.textContent = `✅ Éxito: Reserva ${reservaId} ha sido CONFIRMADA.`;
+                    messageElement.style.color = 'green';
+                    form.reset();
+                    await loadPendingReservas(); // Recargar la lista
+                } else {
+                    messageElement.textContent = data.error || 'Error al aprobar. Verifica que el ID exista y esté pendiente.';
+                    messageElement.style.color = 'red';
+                }
+            } catch (error) {
+                messageElement.textContent = 'Error de conexión con el servidor.';
+                messageElement.style.color = 'red';
+            }
+        }
+
+        // Inicializar
+        loadAdminDashboard();
+    </script>
+</body>
+</html>

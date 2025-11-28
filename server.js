@@ -13,9 +13,7 @@ const app = express();
 const PORT = 3000;
 
 // --- CONFIGURACIÓN E INICIALIZACIÓN ---
-
-// DESCOMENTAR SOLO LA PRIMERA VEZ para crear las tablas en PostgreSQL.
-// db.initializeDatabase(); 
+// db.initializeDatabase(); // Descomentar solo la primera vez
 
 // Configuración de Middleware
 app.use(express.static(path.join(__dirname, 'public')));
@@ -29,30 +27,30 @@ app.post('/api/auth/login', authController.login);
 
 
 // --- RUTAS PROTEGIDAS DE ANFITRIÓN/ADMIN ---
-
-// Dashboard (ruta de prueba)
 app.get('/api/anfitrion/dashboard', authController.protect(['anfitrion']), (req, res) => {
     res.json({ mensaje: `Bienvenido al Dashboard de Anfitrión, ID: ${req.user.id}` });
 });
 
-// Gestión de Propiedades y Calendario
+// Gestión de Propiedades (CRUD)
 app.post('/api/anfitrion/propiedades', authController.protect(['anfitrion']), propiedadesController.crearPropiedad);
 app.get('/api/anfitrion/propiedades', authController.protect(['anfitrion']), propiedadesController.listarMisPropiedades);
+
+// Gestión de Calendario
 app.post('/api/anfitrion/disponibilidad/bloquear', authController.protect(['anfitrion']), disponibilidadController.bloquearDisponibilidad);
 app.get('/api/anfitrion/disponibilidad/propiedad/:id', authController.protect(['anfitrion']), disponibilidadController.getDisponibilidadByPropiedad);
 
-// NUEVA RUTA: Listar Reservas Pendientes para el Dashboard
-app.get(
-    '/api/anfitrion/reservas/pendientes', 
-    authController.protect(['anfitrion', 'admin']), 
-    reservaController.listarReservasPendientes 
-);
-
-// RUTA DE APROBACIÓN MANUAL
+// Aprobación Manual (Admin/Anfitrión)
 app.post(
     '/api/admin/aprobar-pago', 
     authController.protect(['anfitrion', 'admin']), 
-    reservaController.aprobarPagoManual 
+    reservaController.aprobarPagoManual
+);
+
+// LISTA DE RESERVAS PENDIENTES (Para el Dashboard Administrativo)
+app.get(
+    '/api/anfitrion/reservas-pendientes',
+    authController.protect(['anfitrion', 'admin']),
+    reservaController.listarReservasPendientes
 );
 
 
@@ -60,8 +58,7 @@ app.post(
 app.post('/api/publico/reservar', reservaController.crearReservaPendiente);
 app.get('/api/publico/buscar', disponibilidadController.buscarDisponibilidad);
 
-
-// Servir el Front-end
+// Rutas de Front-end (Sirve los HTML)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -69,6 +66,7 @@ app.get('/', (req, res) => {
 app.get('/detalle.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'detail.html'));
 });
+
 
 // --- INICIAR EL SERVIDOR ---
 app.listen(PORT, () => {

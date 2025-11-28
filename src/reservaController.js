@@ -81,28 +81,25 @@ const aprobarPagoManual = async (req, res) => {
     }
 };
 
-// --- 3. LISTAR RESERVAS PENDIENTES DEL ANFITRIÓN ---
+// --- RUTA PROTEGIDA: LISTAR RESERVAS PENDIENTES ---
 const listarReservasPendientes = async (req, res) => {
-    const { id: usuario_id } = req.user;
-
     try {
+        // Unimos las tablas Reservas y Propiedades para mostrar el nombre del quincho
         const results = await db.query(
             `SELECT 
-                r.id AS reserva_id, r.monto_total, r.fecha_creacion,
-                r.nombre_inquilino, r.telefono_inquilino,
-                p.nombre AS nombre_quincho, p.id AS propiedad_id
+                r.id AS reserva_id, r.monto_total, r.fecha_inicio, r.nombre_inquilino, r.email_inquilino, r.estado_pago,
+                p.nombre AS nombre_quincho, p.ciudad
              FROM reservas r
              JOIN propiedades p ON r.propiedad_id = p.id
-             WHERE p.usuario_id = $1 AND r.estado_pago = 'pendiente'
-             ORDER BY r.fecha_creacion DESC`,
-            [usuario_id]
+             WHERE r.estado_pago = 'pendiente'
+             ORDER BY r.fecha_creacion DESC`
         );
-
+        
         res.json(results.rows);
 
-    } catch (err) {
-        console.error('Error al listar reservas pendientes:', err);
-        res.status(500).json({ error: 'Error interno del servidor.' });
+    } catch (error) {
+        console.error('Error al listar reservas pendientes:', error);
+        res.status(500).json({ error: 'Error interno al obtener la lista de reservas.' });
     }
 };
 
@@ -110,5 +107,5 @@ const listarReservasPendientes = async (req, res) => {
 module.exports = {
     crearReservaPendiente,
     aprobarPagoManual,
-    listarReservasPendientes // <-- ¡LISTO PARA SER USADO EN EL DASHBOARD!
+    listarReservasPendientes, 
 };
