@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - QuinchoFinder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">QuinchoFinder</div>
+        <nav class="nav">
+            <a href="/">Inicio</a> | 
+            <a href="/register.html">Registro</a>
+        </nav>
+    </header>
+
+    <main class="auth-container">
+        <h2>Ingresa a tu Cuenta</h2>
+        <form id="login-form" class="auth-form">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit" class="btn-primary btn-submit">Iniciar Sesión</button>
+            <p class="auth-switch">¿No tienes cuenta? <a href="/register.html">Regístrate aquí</a></p>
+        </form>
+        <p id="message" style="color: red; text-align: center; margin-top: 15px;"></p>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 QuinchoFinder.</p>
+    </footer>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = '';
+
+            const formData = {
+                email: form.email.value,
+                password: form.password.value,
+            };
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userRole', data.rol);
+                    messageElement.style.color = 'green';
+                    messageElement.textContent = '¡Acceso exitoso! Redirigiendo...';
+                    
+                    // Redirigir según el rol
+                    if (data.rol === 'anfitrion') {
+                        setTimeout(() => { window.location.href = '/anfitrion/dashboard.html'; }, 1500);
+                    } else {
+                        // Rol 'cliente' o por defecto
+                        setTimeout(() => { window.location.href = '/'; }, 1500);
+                    }
+                } else {
+                    messageElement.style.color = 'red';
+                    messageElement.textContent = data.error || 'Credenciales inválidas.';
+                }
+            } catch (error) {
+                messageElement.style.color = 'red';
+                messageElement.textContent = 'Error de conexión con el servidor.';
+            }
+        });
+    </script>
+    <style> /* Estilos Mínimos */
+        .auth-container { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        .auth-form label { display: block; margin-top: 15px; font-weight: bold; }
+        .auth-form input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-submit { margin-top: 25px; width: 100%; }
+        .auth-switch { text-align: center; margin-top: 15px; font-size: 0.9em; }
+    </style>
+</body>
+</html>

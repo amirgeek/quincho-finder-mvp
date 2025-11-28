@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Anfitrión - QuinchoFinder</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Estilos específicos del dashboard */
+        .dashboard-container { max-width: 1000px; margin: 30px auto; padding: 20px; }
+        .dashboard-container h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .property-form input, .property-form textarea, .property-form select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        .prop-list-card { background: #fff; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; }
+        .prop-list-card strong { color: var(--primary-color); }
+        .prop-list-card p { margin: 5px 0; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">QuinchoFinder</div>
+        <nav class="nav">
+            <a href="/">Inicio</a> 
+            <button onclick="logout()" class="btn-primary" style="padding: 5px 10px;">Cerrar Sesión</button>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <h1>Bienvenido, <span id="user-name">Anfitrión</span></h1>
+
+        <h2>➕ Publicar Nuevo Quincho</h2>
+        <form id="create-property-form" class="property-form">
+            <label for="nombre">Nombre del Espacio (ej: Quincho El Sol):</label>
+            <input type="text" id="nombre" name="nombre" required>
+
+            <label for="ciudad">Ciudad/Localidad:</label>
+            <input type="text" id="ciudad" name="ciudad" required>
+
+            <label for="precio_dia">Precio Base por Día (ARS):</label>
+            <input type="number" id="precio_dia" name="precio_dia" required>
+
+            <label for="comision_tipo">Modelo de Cobro:</label>
+            <select id="comision_tipo" name="comision_tipo" required>
+                <option value="comision">Comisión por Reserva (Recomendado)</option>
+                <option value="abono">Abono Mensual</option>
+            </select>
+
+            <label for="descripcion">Descripción Detallada:</label>
+            <textarea id="descripcion" name="descripcion" rows="4"></textarea>
+
+            <button type="submit" class="btn-primary" style="margin-top: 15px;">Publicar Quincho</button>
+            <p id="form-message" style="margin-top: 10px;"></p>
+        </form>
+
+        <hr style="margin: 40px 0;">
+
+        <h2>📋 Mis Propiedades Publicadas</h2>
+        <div id="property-list-container">
+            <p>Cargando tus propiedades...</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 QuinchoFinder.</p>
+    </footer>
+
+    <script>
+        const AUTH_TOKEN = localStorage.getItem('authToken');
+        const USER_ROLE = localStorage.getItem('userRole');
+
+        // Función de Desconexión
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = '/login.html';
+        }
+
+        // --- PROTECCIÓN DE RUTA ---
+        if (!AUTH_TOKEN || USER_ROLE !== 'anfitrion') {
+            alert('Acceso no autorizado. Por favor, inicia sesión como anfitrión.');
+            logout(); 
+        }
+
+        // --- FUNCIÓN PRINCIPAL DE CARGA DE DATOS ---
+        async function loadDashboard() {
+            // 1. Cargar Propiedades Existentes
+            await loadProperties();
+
+            // 2. Adjuntar Manejador de Formulario
+            document.getElementById('create-property-form').addEventListener('submit', handleCreateProperty);
+        }
+
+        // --- 1. FUNCIÓN PARA CARGAR LA LISTA DE PROPIEDADES ---
+        async function loadProperties() {
+            const listContainer = document.getElementById('property-list-container');
+            listContainer.innerHTML = 'Cargando propiedades...';
+            
+            try {
+                const response = await fetch('/api/anfitrion/propiedades', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.length === 0) {
+                        listContainer.innerHTML = '<p>Aún no tienes propiedades publicadas. Usa el formulario de arriba para empezar.</p>';
+                    } else {
+                        listContainer.innerHTML = ''; 
+                        data.forEach(prop => {
+                            const card = document.createElement('div');
+                            card.className = 'prop-list-card';
+                            
+                            // *** CÓDIGO CORREGIDO AQUÍ: Usamos <a> en lugar de <button> ***
+                            card.innerHTML = `
+                                <strong>${prop.nombre}</strong> (ID: ${prop.id})<br>
+                                <p>Ciudad: ${prop.ciudad} | Precio: $${prop.precio_dia} / Día</p>
+                                <p>Cobro: ${prop.comision_tipo} | Creado: ${new Date(prop.fecha_creacion).toLocaleDateString()}</p>
+                                <a href="/anfitrion/calendario.html?id=${prop.id}" class="btn-primary" style="padding: 5px 10px; margin-top: 5px; text-decoration: none; display: inline-block;">Ver Calendario</a>
+                            `;
+                            listContainer.appendChild(card);
+                        });
+                    }
+                } else {
+                    listContainer.innerHTML = `<p style="color:red;">Error al cargar: ${data.error || 'Verifique el token.'}</p>`;
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<p style="color:red;">Error de conexión con la API.</p>';
+                console.error('Error:', error);
+            }
+        }
+
+        // --- 2. FUNCIÓN PARA CREAR UNA PROPIEDAD ---
+        async function handleCreateProperty(e) {
+            e.preventDefault();
+            const form = e.target;
+            const messageElement = document.getElementById('form-message');
+            messageElement.textContent = 'Guardando...';
+
+            const formData = {
+                nombre: form.nombre.value,
+                ciudad: form.ciudad.value,
+                precio_dia: parseFloat(form.precio_dia.value),
+                comision_tipo: form.comision_tipo.value,
+                descripcion: form.descripcion.value
+            };
+
+            try {
+                const response = await fetch('/api/anfitrion/propiedades', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageElement.textContent = data.mensaje;
+                    messageElement.style.color = 'green';
+                    form.reset(); 
+                    await loadProperties(); 
+                } else {
+                    messageElement.textContent = data.error || 'Error al crear la propiedad.';
+                    messageElement.style.color = 'red';
+                }
+            } catch (error) {
+                messageElement.textContent = 'Error de red al intentar crear.';
+                messageElement.style.color = 'red';
+                console.error('Error:', error);
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

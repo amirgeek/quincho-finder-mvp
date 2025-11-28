@@ -11,43 +11,17 @@
     <header class="header">
         <div class="logo">QuinchoFinder</div>
         <nav class="nav">
-            <a href="index.html">Inicio</a>
+            <a href="/">Inicio</a>
         </nav>
     </header>
 
     <main class="results-page-main">
         <div class="container">
-            <h2>Quinchos Disponibles en CABA para el 15/12/2025</h2>
-            <p class="summary">Se encontraron 5 propiedades que cumplen con tu búsqueda.</p>
+            <h2 id="results-title">Cargando Resultados...</h2>
+            <p class="summary"></p>
 
             <section class="property-list">
-                
-                <article class="property-card">
-                    <img src="placeholder-img-1.jpg" alt="Imagen del Quincho Moderno" class="property-image">
-                    <div class="property-info">
-                        <h3>Quincho Moderno con Pileta Climatizada</h3>
-                        <p class="location">📍 Palermo, CABA</p>
-                        <p class="details">Capacidad: 25 personas. Servicios: Parrilla, Pileta, Wi-Fi.</p>
-                        <div class="price-action">
-                            <span class="price">$50.000 / Día</span>
-                            <a href="detail.html" class="btn-primary">Ver Detalles</a>
-                        </div>
-                    </div>
-                </article>
-                <article class="property-card">
-                    <img src="placeholder-img-2.jpg" alt="Imagen de Clubhouse con Cancha" class="property-image">
-                    <div class="property-info">
-                        <h3>Clubhouse Familiar en Barrio Privado</h3>
-                        <p class="location">📍 Nordelta, Tigre</p>
-                        <p class="details">Capacidad: 50 personas. Servicios: Cancha de Tenis, Asador, Parking.</p>
-                        <div class="price-action">
-                            <span class="price">$15.000 / Hora</span>
-                            <a href="detail.html" class="btn-primary">Ver Detalles</a>
-                        </div>
-                    </div>
-                </article>
-
-            </section>
+                </section>
         </div>
     </main>
 
@@ -55,5 +29,51 @@
         <p>&copy; 2025 QuinchoFinder.</p>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultsContainer = document.querySelector('.property-list');
+            const summaryElement = document.querySelector('.summary');
+            const titleElement = document.getElementById('results-title');
+            
+            const searchParams = JSON.parse(localStorage.getItem('searchParams'));
+            const results = JSON.parse(localStorage.getItem('searchResults'));
+
+            if (!searchParams) {
+                // Caso si el usuario va directamente a results.html
+                titleElement.textContent = 'Inicia una búsqueda';
+                summaryElement.textContent = 'Por favor, usa la página de inicio para buscar espacios.';
+                return;
+            }
+
+            titleElement.textContent = `Quinchos Disponibles en "${searchParams.ciudad}" para el ${searchParams.fecha}`;
+            
+            if (results && results.length > 0) {
+                summaryElement.textContent = `Se encontraron ${results.length} propiedades que cumplen con tu búsqueda.`;
+                
+                results.forEach(quincho => {
+                    // Genera el HTML de la tarjeta usando los datos de PostgreSQL
+                    const cardHTML = `
+                        <article class="property-card">
+                            <img src="/images/placeholder-img-1.jpg" alt="Imagen de ${quincho.nombre}" class="property-image">
+                            <div class="property-info">
+                                <h3>${quincho.nombre}</h3>
+                                <p class="location">📍 ${quincho.ciudad}</p>
+                                <p class="details">Precio: $${quincho.precio_dia} / Día.</p>
+                                <div class="price-action">
+                                    <span class="price">$${quincho.precio_dia} / Día</span>
+                                    <a href="/detalle.html?id=${quincho.id}" class="btn-primary">Ver Detalles</a>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                    resultsContainer.innerHTML += cardHTML;
+                });
+
+            } else {
+                summaryElement.textContent = `No se encontraron propiedades en "${searchParams.ciudad}" para la fecha solicitada.`;
+                resultsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Intenta con otra ciudad, fecha o revisa que hayas cargado quinchos como anfitrión.</p>';
+            }
+        });
+    </script>
 </body>
 </html>

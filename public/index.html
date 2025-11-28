@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuinchoFinder - Alquila tu Espacio para Eventos en Argentina</title>
     <link rel="stylesheet" href="styles.css">
-    </head>
+</head>
 <body>
 
     <header class="header">
         <div class="logo">QuinchoFinder</div>
         <nav class="nav">
-            <a href="#">Inicio</a>
+            <a href="/">Inicio</a>
+            <a href="/register.html">Registrarse</a>
+            <a href="/login.html" class="btn-primary">Iniciar Sesión</a>
         </nav>
     </header>
 
@@ -21,7 +23,7 @@
             <p>Quinchos y Clubhouses disponibles para alquilar por día u horas en tu zona.</p>
             
             <div class="search-form-container">
-                <form action="/resultados" method="GET" class="search-form">
+                <form id="search-form" class="search-form">
                     <input type="text" name="ciudad" placeholder="Ciudad o Zona (Ej: CABA, Córdoba)" required>
                     <input type="date" name="fecha" required>
                     <button type="submit">Buscar Quincho</button>
@@ -51,10 +53,30 @@
 
     <footer class="footer">
         <p>&copy; 2025 QuinchoFinder. Todos los derechos reservados.</p>
-        <div class="footer-links">
-            <a href="#">Contacto</a> | <a href="#">Términos</a>
-        </div>
     </footer>
+
+    <script>
+        document.getElementById('search-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const ciudad = e.target.querySelector('input[name="ciudad"]').value;
+            const fecha = e.target.querySelector('input[name="fecha"]').value;
+            
+            try {
+                const response = await fetch(`/api/publico/buscar?ciudad=${ciudad}&fecha=${fecha}`);
+                const data = await response.json();
+                
+                localStorage.setItem('searchResults', JSON.stringify(data));
+                localStorage.setItem('searchParams', JSON.stringify({ ciudad, fecha }));
+
+                window.location.href = '/results.html'; 
+
+            } catch (error) {
+                console.error('Error en la búsqueda:', error);
+                alert('Hubo un error al buscar propiedades. Asegúrate de que el servidor esté corriendo.');
+            }
+        });
+    </script>
 
 </body>
 </html>
