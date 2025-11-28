@@ -660,4 +660,225 @@
       margin: 40px auto;
     }
   }
+
+  /* ======================================= */
+/* QUINCHOFINDER - ESTILO BRUBANK MOBILE   */
+/* ======================================= */
+
+:root {
+    --color-primary: #6B3FA0;    
+    --color-secondary: #8A5FBF;  
+    --color-accent: #ffffff;     
+    --color-bg-light: #F9F9F9;   
+    --color-text-dark: #333333;  
+    --color-text-gray: #666666;  
+    --color-border: #E0E0E0;     
+    
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+    --border-radius: 12px; /* Bordes más suaves para mobile */
+    --header-height: 65px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: var(--color-text-dark);
+    background-color: var(--color-bg-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: var(--header-height); /* Evita que el contenido quede bajo el header */
+}
+
+a { text-decoration: none; color: inherit; transition: 0.2s; }
+ul { list-style: none; }
+
+/* --- 1. ENCABEZADO RESPONSIVE --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    background-color: var(--color-primary);
+    color: var(--color-accent);
+    height: var(--header-height);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-sm);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--color-accent);
+    z-index: 1001; /* Por encima del menú móvil */
+}
+.logo img { height: 32px; margin-right: 8px; filter: brightness(0) invert(1); }
+
+/* Botón Hamburguesa (Solo visible en Mobile) */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-accent);
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* Navegación Desktop */
+.nav {
+    display: flex;
+    align-items: center;
+}
+.nav a {
+    margin-left: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+.nav a:hover { color: var(--color-accent); }
+.nav button { background: none; border: none; cursor: pointer; font-family: inherit; }
+
+
+/* --- 2. BOTONES Y FORMS (Touch Friendly) --- */
+.btn-primary {
+    padding: 8px 16px;
+    background-color: rgba(255,255,255,0.2);
+    color: var(--color-accent) !important;
+    border-radius: var(--border-radius);
+    font-weight: 700;
+}
+
+.btn-search, .btn-submit {
+    background-color: var(--color-primary);
+    color: var(--color-accent);
+    padding: 14px; /* Área de toque más grande */
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 700;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 14px; /* Más fácil de tocar */
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    margin-bottom: 15px;
+    background: #fff;
+}
+
+
+/* --- 3. VISTAS (Home, Resultados, etc) --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 5%;
+    background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('/images/brubank-quincho-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 85vh; /* Llenar pantalla en móvil */
+}
+
+.search-container {
+    background-color: var(--color-accent);
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 900px;
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* Filtros */
+.filters-toggle {
+    text-align: center; margin-bottom: 15px; cursor: pointer;
+    color: var(--color-primary); font-weight: 700; 
+    padding: 10px; background: #f0f0f0; border-radius: 8px; /* Botón más claro */
+}
+.filters-container {
+    display: none;
+    grid-template-columns: 1fr; /* Apilados en móvil */
+    gap: 10px; margin-bottom: 15px;
+}
+.filters-container.active { display: grid; }
+
+/* Cards Responsive */
+.property-list, .feature-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Adapta columnas auto */
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 5%;
+}
+
+.card, .property-card {
+    background: var(--color-accent);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.property-image { width: 100%; height: 200px; object-fit: cover; }
+.property-info, .card { padding: 20px; }
+
+
+/* --- 4. MOBILE MEDIA QUERIES --- */
+@media (max-width: 768px) {
+    /* Header y Menú Móvil */
+    .mobile-menu-btn { display: block; }
+    
+    .nav {
+        display: none; /* Oculto por defecto */
+        position: absolute;
+        top: var(--header-height);
+        left: 0;
+        width: 100%;
+        background-color: var(--color-primary);
+        flex-direction: column;
+        padding: 20px 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .nav.active { display: flex; } /* Se muestra con JS */
+    
+    .nav a, .nav button {
+        margin: 15px 0;
+        font-size: 1.1rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Ajustes de Contenido */
+    .hero-content h1 { font-size: 2.2rem; }
+    .search-form { grid-template-columns: 1fr; } /* Inputs uno debajo del otro */
+    
+    /* Detalle */
+    .detail-content { grid-template-columns: 1fr; }
+    .booking-form-aside { order: -1; margin-bottom: 30px; } /* Formulario primero en móvil */
+    
+    /* Dashboard */
+    .reserva-card { flex-direction: column; align-items: flex-start; }
+    .reserva-card button { width: 100%; margin-top: 10px; }
+}
   
