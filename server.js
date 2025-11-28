@@ -1,87 +1,76 @@
-// src/reservaController.js
-const db = require('./db');
+// server.js
+const express = require('express');
+const path = require('path');
 
-// --- RUTA PÚBLICA: CREAR RESERVA PENDIENTE ---
-const crearReservaPendiente = async (req, res) => {
-    const { 
-        propiedad_id, 
-        nombre_inquilino, 
-        email_inquilino, 
-        telefono_inquilino,
-        fecha_inicio, 
-        fecha_fin, 
-        monto_total 
-    } = req.body;
+// Importar controladores y la conexión a la DB
+const db = require('./src/db');
+const authController = require('./src/authController');
+const propiedadesController = require('./src/propiedadesController');
+const disponibilidadController = require('./src/disponibilidadController');
+const reservaController = require('./src/reservaController');
 
-    if (!propiedad_id || !fecha_inicio || !monto_total || !email_inquilino) {
-        return res.status(400).json({ error: 'Faltan campos obligatorios para la reserva.' });
-    }
+const app = express();
+const PORT = 3000;
 
-    try {
-        // Paso 1: Crear la RESERVA en la tabla (estado 'pendiente')
-        const reservaResult = await db.query(
-            `INSERT INTO reservas 
-             (propiedad_id, nombre_inquilino, email_inquilino, telefono_inquilino, fecha_inicio, fecha_fin, monto_total, estado_pago) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendiente') 
-             RETURNING *`,
-            [propiedad_id, nombre_inquilino, email_inquilino, telefono_inquilino, fecha_inicio, fecha_fin, monto_total]
-        );
+// --- CONFIGURACIÓN E INICIALIZACIÓN ---
 
-        const reserva = reservaResult.rows[0];
+// DESCOMENTAR SOLO LA PRIMERA VEZ para crear las tablas en PostgreSQL.
+// db.initializeDatabase(); 
 
-        // Paso 2: BLOQUEAR el espacio en la tabla DISPONIBILIDAD (estado 'reservado')
-        await db.query(
-            `INSERT INTO disponibilidad 
-             (propiedad_id, fecha, hora_inicio, hora_fin, estado) 
-             VALUES ($1, $2, $3, $4, 'reservado')`,
-            [
-                propiedad_id, 
-                fecha_inicio.split('T')[0], 
-                fecha_inicio.split('T')[1].substring(0, 8), 
-                fecha_fin.split('T')[1].substring(0, 8)
-            ]
-        );
+// Configuración de Middleware
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-        res.status(201).json({ 
-            mensaje: 'Reserva creada con éxito (Pendiente de Pago).', 
-            reserva: reserva 
-        });
 
-    } catch (err) {
-        console.error('Error al crear la reserva:', err);
-        if (err.code === '23505') {
-            return res.status(409).json({ error: 'El espacio ya está ocupado en ese horario.' });
-        }
-        res.status(500).json({ error: 'Error interno del servidor.' });
-    }
-};
+// --- RUTAS DE AUTENTICACIÓN (PÚBLICAS) ---
+app.post('/api/auth/register', authController.register);
+app.post('/api/auth/login', authController.login);
 
-// --- RUTA PROTEGIDA: APROBACIÓN MANUAL POR ADMINISTRADOR ---
-const aprobarPagoManual = async (req, res) => {
-    const { reserva_id } = req.body; 
 
-    try {
-        const result = await db.query(
-            'UPDATE reservas SET estado_pago = $1 WHERE id = $2 RETURNING estado_pago',
-            ['confirmado', reserva_id]
-        );
+// --- RUTAS PROTEGIDAS DE ANFITRIÓN/ADMIN ---
 
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Reserva no encontrada.' });
-        }
-        
-        res.json({ 
-            mensaje: `Reserva ${reserva_id} confirmada manualmente.`, 
-            estado: 'confirmado' 
-        });
+// Dashboard (ruta de prueba)
+app.get('/api/anfitrion/dashboard', authController.protect(['anfitrion']), (req, res) => {
+    res.json({ mensaje: `Bienvenido al Dashboard de Anfitrión, ID: ${req.user.id}` });
+});
 
-    } catch (error) {
-        console.error('Error al aprobar manualmente:', error);
-        res.status(500).json({ error: 'Error interno del servidor.' });
-    }
-};
+// Gestión de Propiedades y Calendario
+app.post('/api/anfitrion/propiedades', authController.protect(['anfitrion']), propiedadesController.crearPropiedad);
+app.get('/api/anfitrion/propiedades', authController.protect(['anfitrion']), propiedadesController.listarMisPropiedades);
+app.post('/api/anfitrion/disponibilidad/bloquear', authController.protect(['anfitrion']), disponibilidadController.bloquearDisponibilidad);
+app.get('/api/anfitrion/disponibilidad/propiedad/:id', authController.protect(['anfitrion']), disponibilidadController.getDisponibilidadByPropiedad);
 
-module.exports = {
-    crearReservaPendiente,
-    aprobarPagoManual 
-};
+// NUEVA RUTA: Listar Reservas Pendientes para el Dashboard
+app.get(
+    '/api/anfitrion/reservas/pendientes', 
+    authController.protect(['anfitrion', 'admin']), 
+    reservaController.listarReservasPendientes 
+);
+
+// RUTA DE APROBACIÓN MANUAL
+app.post(
+    '/api/admin/aprobar-pago', 
+    authController.protect(['anfitrion', 'admin']), 
+    reservaController.aprobarPagoManual 
+);
+
+
+// --- RUTAS DE RESERVA Y BÚSQUEDA PÚBLICAS ---
+app.post('/api/publico/reservar', reservaController.crearReservaPendiente);
+app.get('/api/publico/buscar', disponibilidadController.buscarDisponibilidad);
+
+
+// Servir el Front-end
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/detalle.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'detail.html'));
+});
+
+// --- INICIAR EL SERVIDOR ---
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor iniciado en http://localhost:${PORT}`);
+});

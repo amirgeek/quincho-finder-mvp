@@ -3,80 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuinchoFinder - Alquila tu Espacio para Eventos en Argentina</title>
+    <title>QuinchoFinder - Estilo Brubank</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <header class="header">
-        <div class="logo">QuinchoFinder</div>
+        <a href="/" class="logo">
+            <img src="/images/quincho-finder-logo.png" alt="Logo">
+
+        </a>
         <nav class="nav">
-            <a href="/">Inicio</a>
+            <a href="/" class="active">Inicio</a>
             <a href="/register.html">Registrarse</a>
             <a href="/login.html" class="btn-primary">Iniciar Sesión</a>
         </nav>
     </header>
 
-    <main class="hero">
+    <main class="main-content">
         <div class="hero-content">
-            <h1>Encuentra tu Lugar Perfecto para Reuniones y Eventos</h1>
-            <p>Quinchos y Clubhouses disponibles para alquilar por día u horas en tu zona.</p>
-            
-            <div class="search-form-container">
-                <form id="search-form" class="search-form">
-                    <input type="text" name="ciudad" placeholder="Ciudad o Zona (Ej: CABA, Córdoba)" required>
-                    <input type="date" name="fecha" required>
-                    <button type="submit">Buscar Quincho</button>
-                </form>
+            <h1>Reserva tu espacio ideal hoy</h1>
+            <p>La forma más simple y segura de alquilar quinchos y clubhouses.</p>
+        </div>
+        
+        <div class="search-container">
+            <div class="filters-toggle" onclick="toggleFilters()">
+                <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down" id="filter-arrow"></i>
             </div>
-            
+
+            <form id="search-form" class="search-form">
+                <div class="filters-container" id="filters-container">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select name="tipo"><option value="">Todos</option><option value="quincho">Quincho</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Invitados</label>
+                        <input type="number" name="capacidad" placeholder="Ej: 20">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Máx</label>
+                        <input type="number" name="precio_max" placeholder="$">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ubicación</label>
+                    <input type="text" name="ciudad" placeholder="Ej: Palermo" required>
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" name="fecha" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn-search">Buscar</button>
+                </div>
+            </form>
         </div>
     </main>
 
     <section class="features-section">
-        <h2>¿Por qué QuinchoFinder?</h2>
+        <h2>Experiencia Premium</h2>
         <div class="feature-cards">
             <div class="card">
-                <h3>Reserva Simple</h3>
-                <p>Busca, selecciona y solicita la reserva en 3 clics.</p>
+                <h3><i class="fas fa-bolt"></i> Rápido</h3>
+                <p>Reserva en segundos.</p>
             </div>
             <div class="card">
-                <h3>Espacios Únicos</h3>
-                <p>Solo los mejores quinchos y clubhouses verificados.</p>
+                <h3><i class="fas fa-shield-alt"></i> Seguro</h3>
+                <p>Usuarios verificados.</p>
             </div>
             <div class="card">
-                <h3>Precios Claros</h3>
-                <p>Tarifas transparentes por día o por franjas horarias.</p>
+                <h3><i class="fas fa-heart"></i> Simple</h3>
+                <p>Diseño intuitivo.</p>
             </div>
         </div>
     </section>
 
     <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder. Todos los derechos reservados.</p>
+        <p>&copy; 2025 QuinchoFinder.</p>
     </footer>
 
     <script>
+        function toggleFilters() {
+            document.getElementById('filters-container').classList.toggle('active');
+        }
+
         document.getElementById('search-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const ciudad = e.target.querySelector('input[name="ciudad"]').value;
-            const fecha = e.target.querySelector('input[name="fecha"]').value;
+            const formData = new FormData(e.target);
+            const params = new URLSearchParams(formData);
             
             try {
-                const response = await fetch(`/api/publico/buscar?ciudad=${ciudad}&fecha=${fecha}`);
+                const response = await fetch(`/api/publico/buscar?${params.toString()}`);
                 const data = await response.json();
-                
                 localStorage.setItem('searchResults', JSON.stringify(data));
-                localStorage.setItem('searchParams', JSON.stringify({ ciudad, fecha }));
-
+                localStorage.setItem('searchParams', JSON.stringify(Object.fromEntries(formData)));
                 window.location.href = '/results.html'; 
-
             } catch (error) {
-                console.error('Error en la búsqueda:', error);
-                alert('Hubo un error al buscar propiedades. Asegúrate de que el servidor esté corriendo.');
+                alert('Error de conexión. Verifica npm start.');
             }
         });
     </script>
-
 </body>
 </html>

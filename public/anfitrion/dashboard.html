@@ -8,11 +8,24 @@
     <style>
         /* Estilos específicos del dashboard */
         .dashboard-container { max-width: 1000px; margin: 30px auto; padding: 20px; }
-        .dashboard-container h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-        .property-form input, .property-form textarea, .property-form select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
-        .prop-list-card { background: #fff; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; }
-        .prop-list-card strong { color: var(--primary-color); }
+        .dashboard-container h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; font-weight: 700; }
+        .property-form input, .property-form textarea, .property-form select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        .prop-list-card { 
+            background: #fff; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; 
+            border-left: 5px solid var(--primary-color); 
+        }
+        .prop-list-card strong { color: var(--primary-color); font-size: 1.1em; }
         .prop-list-card p { margin: 5px 0; font-size: 0.9em; }
+        
+        /* Estilos para Reservas Pendientes */
+        .reserva-card { 
+            background: #ffe4e4; border: 1px solid #ff5a5f; padding: 15px; border-radius: 6px; margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .reserva-card strong { color: #ff5a5f; font-weight: 700; }
+        .reserva-card .reserva-details { margin: 0; font-size: 0.95em; flex-grow: 1; padding-right: 20px; }
+        .reserva-card button { min-width: 150px; }
     </style>
 </head>
 <body>
@@ -27,6 +40,13 @@
 
     <main class="dashboard-container">
         <h1>Bienvenido, <span id="user-name">Anfitrión</span></h1>
+
+        <h2>🚨 Reservas Pendientes de Pago (Transferencia)</h2>
+        <div id="pending-reservations-container">
+            <p>Cargando reservas pendientes...</p>
+        </div>
+
+        <hr style="margin: 40px 0;">
 
         <h2>➕ Publicar Nuevo Quincho</h2>
         <form id="create-property-form" class="property-form">
@@ -68,29 +88,24 @@
         const AUTH_TOKEN = localStorage.getItem('authToken');
         const USER_ROLE = localStorage.getItem('userRole');
 
-        // Función de Desconexión
         function logout() {
             localStorage.removeItem('authToken');
             localStorage.removeItem('userRole');
             window.location.href = '/login.html';
         }
 
-        // --- PROTECCIÓN DE RUTA ---
         if (!AUTH_TOKEN || USER_ROLE !== 'anfitrion') {
             alert('Acceso no autorizado. Por favor, inicia sesión como anfitrión.');
             logout(); 
         }
 
-        // --- FUNCIÓN PRINCIPAL DE CARGA DE DATOS ---
         async function loadDashboard() {
-            // 1. Cargar Propiedades Existentes
-            await loadProperties();
-
-            // 2. Adjuntar Manejador de Formulario
+            await loadProperties(); 
+            await loadPendingReservations(); // <--- NUEVA FUNCIÓN LLAMADA
             document.getElementById('create-property-form').addEventListener('submit', handleCreateProperty);
         }
 
-        // --- 1. FUNCIÓN PARA CARGAR LA LISTA DE PROPIEDADES ---
+        // --- FUNCIÓN PARA CARGAR LA LISTA DE PROPIEDADES (Ya existente) ---
         async function loadProperties() {
             const listContainer = document.getElementById('property-list-container');
             listContainer.innerHTML = 'Cargando propiedades...';
@@ -98,11 +113,8 @@
             try {
                 const response = await fetch('/api/anfitrion/propiedades', {
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AUTH_TOKEN}`
-                    }
+                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
                 });
-
                 const data = await response.json();
 
                 if (response.ok) {
@@ -114,10 +126,9 @@
                             const card = document.createElement('div');
                             card.className = 'prop-list-card';
                             
-                            // *** CÓDIGO CORREGIDO AQUÍ: Usamos <a> en lugar de <button> ***
                             card.innerHTML = `
                                 <strong>${prop.nombre}</strong> (ID: ${prop.id})<br>
-                                <p>Ciudad: ${prop.ciudad} | Precio: $${prop.precio_dia} / Día</p>
+                                <p>Ciudad: ${prop.ciudad} | Precio: $${parseFloat(prop.precio_dia).toFixed(2)} / Día</p>
                                 <p>Cobro: ${prop.comision_tipo} | Creado: ${new Date(prop.fecha_creacion).toLocaleDateString()}</p>
                                 <a href="/anfitrion/calendario.html?id=${prop.id}" class="btn-primary" style="padding: 5px 10px; margin-top: 5px; text-decoration: none; display: inline-block;">Ver Calendario</a>
                             `;
@@ -125,15 +136,87 @@
                         });
                     }
                 } else {
-                    listContainer.innerHTML = `<p style="color:red;">Error al cargar: ${data.error || 'Verifique el token.'}</p>`;
+                    listContainer.innerHTML = `<p style="color:red;">Error al cargar propiedades: ${data.error || 'Verifique el token.'}</p>`;
                 }
             } catch (error) {
-                listContainer.innerHTML = '<p style="color:red;">Error de conexión con la API.</p>';
-                console.error('Error:', error);
+                listContainer.innerHTML = '<p style="color:red;">Error de conexión con la API de propiedades.</p>';
             }
         }
 
-        // --- 2. FUNCIÓN PARA CREAR UNA PROPIEDAD ---
+        // --- NUEVA FUNCIÓN PARA CARGAR RESERVAS PENDIENTES ---
+        async function loadPendingReservations() {
+            const listContainer = document.getElementById('pending-reservations-container');
+            listContainer.innerHTML = 'Buscando reservas pendientes...';
+
+            try {
+                const response = await fetch('/api/anfitrion/reservas/pendientes', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.length === 0) {
+                        listContainer.innerHTML = '<p>🎉 No hay reservas pendientes de aprobación.</p>';
+                    } else {
+                        listContainer.innerHTML = '';
+                        data.forEach(reserva => {
+                            const card = document.createElement('div');
+                            card.className = 'reserva-card';
+                            
+                            card.innerHTML = `
+                                <div class="reserva-details">
+                                    <strong>Reserva #${reserva.reserva_id}</strong> - ${reserva.nombre_quincho}
+                                    <p>Cliente: ${reserva.nombre_inquilino} (${reserva.telefono_inquilino})</p>
+                                    <p>Monto: <strong>$${parseFloat(reserva.monto_total).toFixed(2)} ARS</strong> | Solicitada: ${new Date(reserva.fecha_creacion).toLocaleDateString()}</p>
+                                </div>
+                                <button onclick="handleApprovePayment(${reserva.reserva_id})" 
+                                        class="btn-primary" style="background-color: var(--secondary-color);">
+                                    Confirmar Pago
+                                </button>
+                            `;
+                            listContainer.appendChild(card);
+                        });
+                    }
+                } else {
+                    listContainer.innerHTML = `<p style="color:red;">Error al cargar reservas: ${data.error || 'Verifique el token.'}</p>`;
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<p style="color:red;">Error de conexión con la API de reservas.</p>';
+            }
+        }
+
+        // --- FUNCIÓN PARA APROBAR PAGO MANUALMENTE ---
+        async function handleApprovePayment(reservaId) {
+            if (!confirm(`¿Estás seguro de que deseas CONFIRMAR el pago de la Reserva #${reservaId}? Esta acción es irreversible.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/aprobar-pago', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH_TOKEN}`
+                    },
+                    body: JSON.stringify({ reserva_id: reservaId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.mensaje);
+                    await loadPendingReservations(); // Recargar la lista
+                } else {
+                    alert(`Error al aprobar: ${data.error || 'Inténtalo de nuevo.'}`);
+                }
+            } catch (error) {
+                alert('Error de red al intentar confirmar el pago.');
+            }
+        }
+
+
+        // --- FUNCIÓN PARA CREAR UNA PROPIEDAD (Ya existente) ---
         async function handleCreateProperty(e) {
             e.preventDefault();
             const form = e.target;
@@ -172,7 +255,6 @@
             } catch (error) {
                 messageElement.textContent = 'Error de red al intentar crear.';
                 messageElement.style.color = 'red';
-                console.error('Error:', error);
             }
         }
 

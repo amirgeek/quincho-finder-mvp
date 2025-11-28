@@ -81,7 +81,34 @@ const aprobarPagoManual = async (req, res) => {
     }
 };
 
+// --- 3. LISTAR RESERVAS PENDIENTES DEL ANFITRIÓN ---
+const listarReservasPendientes = async (req, res) => {
+    const { id: usuario_id } = req.user;
+
+    try {
+        const results = await db.query(
+            `SELECT 
+                r.id AS reserva_id, r.monto_total, r.fecha_creacion,
+                r.nombre_inquilino, r.telefono_inquilino,
+                p.nombre AS nombre_quincho, p.id AS propiedad_id
+             FROM reservas r
+             JOIN propiedades p ON r.propiedad_id = p.id
+             WHERE p.usuario_id = $1 AND r.estado_pago = 'pendiente'
+             ORDER BY r.fecha_creacion DESC`,
+            [usuario_id]
+        );
+
+        res.json(results.rows);
+
+    } catch (err) {
+        console.error('Error al listar reservas pendientes:', err);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
 module.exports = {
     crearReservaPendiente,
-    aprobarPagoManual 
+    aprobarPagoManual,
+    listarReservasPendientes // <-- ¡LISTO PARA SER USADO EN EL DASHBOARD!
 };
