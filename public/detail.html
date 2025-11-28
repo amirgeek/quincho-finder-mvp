@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle: Quincho Moderno con Pileta - QuinchoFinder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">QuinchoFinder</div>
+        <nav class="nav">
+            <a href="index.html">Inicio</a> | <a href="results.html">Volver a Resultados</a>
+        </nav>
+    </header>
+
+    <main class="detail-page-main">
+        <div class="container">
+            <h1>Quincho Moderno con Pileta Climatizada</h1>
+            <p class="location-detail">📍 Palermo, CABA</p>
+            
+            <div class="gallery-placeholder">
+                <img src="placeholder-img-1-large.jpg" alt="Vista principal del quincho">
+                </div>
+
+            <section class="detail-content">
+                <div class="description-section">
+                    <h2>Descripción</h2>
+                    <p>Un espacio ideal para cumpleaños y eventos corporativos. Totalmente equipado con cocina industrial, barra de tragos y un amplio salón climatizado. La pileta exterior es climatizada y está disponible todo el año.</p>
+                    
+                    <h3>Servicios Incluidos</h3>
+                    <ul class="services-list">
+                        <li>Parrilla/Asador grande</li>
+                        <li>Pileta Climatizada</li>
+                        <li>Wi-Fi de alta velocidad</li>
+                        <li>Estacionamiento privado (5 autos)</li>
+                        <li>2 Baños (Hombre/Mujer)</li>
+                    </ul>
+
+                    <h3>Tarifas</h3>
+                    <p class="price-detail">**$50.000 / Día** (Horario de 10:00 a 23:00) o $6.000 por hora.</p>
+                </div>
+
+                <aside class="booking-form-aside">
+                    <h3>Solicitar Reserva Ahora</h3>
+                    <form action="/solicitar-reserva" method="POST" class="booking-form">
+                        <label for="date-start">Fecha y Hora de Inicio:</label>
+                        <input type="datetime-local" id="date-start" name="fecha_inicio" required>
+
+                        <label for="date-end">Fecha y Hora de Fin:</label>
+                        <input type="datetime-local" id="date-end" name="fecha_fin" required>
+
+                        <label for="name">Tu Nombre Completo:</label>
+                        <input type="text" id="name" name="nombre_inquilino" required>
+
+                        <label for="phone">Teléfono (con WhatsApp):</label>
+                        <input type="tel" id="phone" name="telefono_inquilino" required>
+
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email_inquilino" required>
+
+                        <label for="message">Mensaje Adicional (Opcional):</label>
+                        <textarea id="message" name="mensaje" rows="3"></textarea>
+                        
+                        <button type="submit" class="btn-submit">Enviar Solicitud</button>
+                        <p class="disclaimer">Te contactaremos en menos de 2 horas para confirmar disponibilidad y método de pago.</p>
+                    </form>
+                </aside>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 QuinchoFinder.</p>
+    </footer>
+
+</body>
+</html>

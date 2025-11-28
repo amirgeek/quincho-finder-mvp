@@ -1,0 +1,371 @@
+/* Base y Reseteo */
+:root {
+    --primary-color: #ff5722; 
+    --secondary-color: #333;
+    --background-color: #f4f4f9;
+    --text-color: #444;
+    --light-gray: #eee;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background: var(--background-color);
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* --- Componentes Comunes --- */
+
+/* Header/Navegación */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav a {
+    text-decoration: none;
+    color: var(--secondary-color);
+    margin-left: 20px;
+    font-weight: 500;
+}
+
+/* Botones */
+.btn-primary, .btn-submit {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+.btn-primary:hover, .btn-submit:hover {
+    background-color: #e64a19;
+}
+
+/* Footer */
+.footer {
+    background: var(--secondary-color);
+    color: #fff;
+    padding: 20px 5%;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 40px;
+}
+.footer-links a {
+    color: #ffd7c9;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+/* --- index.html (Página de Inicio) --- */
+
+.hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('placeholder-quincho-bg.jpg'); 
+    background-size: cover;
+    background-position: center;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.search-form-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.search-form {
+    display: flex;
+    gap: 10px; 
+}
+
+.search-form input, .search-form button {
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.search-form input {
+    flex: 1; 
+}
+
+/* Sección de Características (Índex) */
+.features-section {
+    padding: 50px 5%;
+    text-align: center;
+}
+.features-section h2 {
+    margin-bottom: 40px;
+    color: var(--secondary-color);
+}
+.feature-cards {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    max-width: 300px;
+    flex: 1;
+}
+.card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+/* --- results.html (Página de Resultados) --- */
+
+.results-page-main h2 {
+    color: var(--secondary-color);
+    margin-top: 20px;
+}
+.summary {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.property-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Tarjeta de Propiedad (Clave del MVP) */
+.property-card {
+    display: flex;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s;
+}
+.property-card:hover {
+    transform: translateY(-5px);
+}
+.property-image {
+    width: 350px; /* Ancho fijo para la imagen en desktop */
+    height: 220px;
+    object-fit: cover;
+}
+.property-info {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.property-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    font-size: 1.4rem;
+}
+.location {
+    color: #777;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+.details {
+    color: #555;
+    margin-bottom: 15px;
+}
+.price-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--light-gray);
+    padding-top: 15px;
+}
+.price {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+/* --- detail.html (Página de Detalle) --- */
+
+.location-detail {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.gallery-placeholder {
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.gallery-placeholder img {
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+}
+
+.detail-content {
+    display: flex;
+    gap: 40px;
+}
+
+.description-section {
+    flex: 2; /* Ocupa 2/3 del espacio */
+}
+
+.booking-form-aside {
+    flex: 1; /* Ocupa 1/3 del espacio */
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: fit-content; /* Se ajusta al contenido */
+}
+
+.description-section h2, .description-section h3 {
+    color: var(--secondary-color);
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.services-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+}
+.services-list li:before {
+    content: "✔️"; /* Ícono simple para el MVP */
+    margin-right: 8px;
+}
+
+.price-detail {
+    font-size: 1.2rem;
+    margin-top: 15px;
+}
+
+.booking-form h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.booking-form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.booking-form input, .booking-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn-submit {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+}
+
+.disclaimer {
+    font-size: 0.8rem;
+    color: #999;
+    text-align: center;
+    margin-top: 10px;
+}
+
+
+/* --- Media Queries (Mobile Responsiveness) --- */
+@media (max-width: 900px) {
+    .detail-content {
+        flex-direction: column; /* Columna simple para detalle en tablet/móvil */
+    }
+    .booking-form-aside {
+        order: -1; /* Mover formulario arriba en móvil */
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: 50vh;
+    }
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    .search-form {
+        flex-direction: column; 
+    }
+    .feature-cards {
+        flex-direction: column;
+    }
+    .card {
+        max-width: 100%;
+    }
+    /* Resultados */
+    .property-card {
+        flex-direction: column; /* Apilar imagen y texto */
+    }
+    .property-image {
+        width: 100%;
+        height: 200px;
+    }
+    .price-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
