@@ -9,88 +9,89 @@
 </head>
 <body>
 
-<header class="header">
-  <a href="/" class="logo">
-    <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
-    QuinchoFinder
-  </a>
-  <nav class="nav">
-    <a href="/">Inicio</a>
-    <a href="/login.html">Iniciar Sesión</a>
-  </nav>
-</header>
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/images/quincho-finder-logo.png" alt="Logo QuinchoFinder">
+        </a>
+        <nav class="nav">
+            <a href="/">Inicio</a> |
+            <a href="/login.html">Login</a>
+        </nav>
+    </header>
 
-<main class="auth-container">
-  <h2>Crear cuenta</h2>
+    <main class="auth-container">
+        <h2>Regístrate como Anfitrión</h2>
+        <form id="register-form" class="auth-form">
+            <label for="nombre">Nombre Completo:</label>
+            <input type="text" id="nombre" name="nombre" required>
 
-  <form id="register-form" class="auth-form">
-    <label>Nombre Completo</label>
-    <input type="text" name="nombre" required />
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
 
-    <label>Email</label>
-    <input type="email" name="email" required />
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
 
-    <label>Contraseña</label>
-    <input type="password" name="password" required />
+            <input type="hidden" name="rol" value="anfitrion">
 
-    <label>Confirmar Contraseña</label>
-    <input type="password" name="password2" required />
+            <button type="submit" class="btn-primary btn-submit">Crear Cuenta de Anfitrión</button>
+            <p class="auth-switch">¿Ya tienes cuenta? <a href="/login.html">Inicia Sesión aquí</a></p>
+        </form>
+        <p id="message" style="color: red; text-align: center; margin-top: 15px;"></p>
+    </main>
 
-    <button type="submit" class="btn-primary btn-submit">Registrarse</button>
+    <footer class="footer">
+        <p>&copy; 2025 QuinchoFinder.</p>
+    </footer>
 
-    <p class="auth-switch">
-      ¿Ya tenés cuenta? <a href="/login.html">Iniciar sesión</a>
-    </p>
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = ''; // Limpiar mensajes anteriores
 
-    <p id="register-message"></p>
-  </form>
-</main>
+            const formData = {
+                nombre: form.nombre.value,
+                email: form.email.value,
+                password: form.password.value,
+                rol: form.rol.value // Debe ser 'anfitrion'
+            };
 
-<footer class="footer">
-  <p>&copy; 2025 QuinchoFinder.</p>
-</footer>
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
 
-<script>
-  document.getElementById("register-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
+                const data = await response.json();
 
-    const msg = document.getElementById("register-message");
-
-    if (e.target.password.value !== e.target.password2.value) {
-      msg.style.color = "red";
-      msg.textContent = "Las contraseñas no coinciden.";
-      return;
-    }
-
-    const formData = {
-      nombre: e.target.nombre.value,
-      email: e.target.email.value,
-      password: e.target.password.value,
-    };
-
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        msg.style.color = "green";
-        msg.textContent = "Cuenta creada. Redirigiendo...";
-        setTimeout(() => (window.location.href = "/login.html"), 1000);
-      } else {
-        msg.style.color = "red";
-        msg.textContent = data.error || "Error al registrarse.";
-      }
-    } catch {
-      msg.style.color = "red";
-      msg.textContent = "Error de conexión.";
-    }
-  });
-</script>
-
+                if (response.ok) {
+                    // Éxito: Guardar el token y redirigir al dashboard (simulado)
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userRole', data.rol);
+                    messageElement.style.color = 'green';
+                    messageElement.textContent = '¡Registro exitoso! Redirigiendo a tu Dashboard...';
+                    
+                    // Simulación de redirección al dashboard del anfitrión
+                    setTimeout(() => { window.location.href = '/anfitrion/dashboard.html'; }, 1500);
+                } else {
+                    // Error: Mostrar el mensaje de error del backend (ej. "email duplicado")
+                    messageElement.style.color = 'red';
+                    messageElement.textContent = data.error || 'Error desconocido al registrar.';
+                }
+            } catch (error) {
+                messageElement.style.color = 'red';
+                messageElement.textContent = 'Error de conexión con el servidor.';
+            }
+        });
+    </script>
+    <style> /* Estilos Mínimos para Centrar el Formulario */
+        .auth-container { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        .auth-form label { display: block; margin-top: 15px; font-weight: bold; }
+        .auth-form input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-submit { margin-top: 25px; width: 100%; }
+        .auth-switch { text-align: center; margin-top: 15px; font-size: 0.9em; }
+    </style>
 </body>
 </html>

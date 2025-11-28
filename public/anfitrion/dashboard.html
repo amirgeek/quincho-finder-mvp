@@ -9,62 +9,22 @@
 </head>
 <body>
 
-<header class="header">
-  <a href="/" class="logo">
-    <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
-    QuinchoFinder
-  </a>
-  <nav class="nav">
-    <a href="/anfitrion/dashboard.html" class="active">Dashboard</a>
-    <a href="/anfitrion/calendario.html">Calendario</a>
-  </nav>
-</header>
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/images/quincho-finder-logo.png" alt="Logo QuinchoFinder">
+        </a>
+        <nav class="nav">
+            <a href="/">Inicio</a>
+            <button onclick="logout()" class="btn-primary" style="padding: 5px 10px;">Cerrar Sesión</button>
+        </nav>
+    </header>
 
-<main class="dashboard-container container">
-  <h1>Panel del Anfitrión</h1>
+    <main class="dashboard-container">
+        <h1>Bienvenido, <span id="user-name">Anfitrión</span></h1>
 
-  <h2>Tus Propiedades</h2>
-  <div id="propiedades-list"></div>
-
-  <h2>Agregar Nueva Propiedad</h2>
-  <form id="prop-form" class="property-form">
-    <label>Nombre del Espacio</label>
-    <input type="text" name="nombre" required />
-
-    <label>Ciudad</label>
-    <input type="text" name="ciudad" required />
-
-    <label>Precio por Día</label>
-    <input type="number" name="precio_dia" required />
-
-    <label>Descripción</label>
-    <textarea name="descripcion"></textarea>
-
-    <button class="btn-primary" type="submit">Guardar Propiedad</button>
-    <p id="form-message"></p>
-  </form>
-
-  <h2>Reservas Pendientes</h2>
-  <div id="reservas-pendientes"></div>
-</main>
-
-<footer class="footer">
-  <p>&copy; 2025 QuinchoFinder.</p>
-</footer>
-
-<script>
-  async function cargarPropiedades() {
-    const cont = document.getElementById("propiedades-list");
-    cont.innerHTML = `<div class="prop-list-card">Quincho Ejemplo – Mar del Plata – $50000/día</div>`;
-  }
-
-  async function cargarReservas() {
-    const cont = document.getElementById("reservas-pendientes");
-    cont.innerHTML = `
-      <div class="reserva-card">
-        <div class="reserva-details">
-          <strong>Reserva #1</strong><br>
-          Juan Pérez – 15/02/2025 – $55000
+        <h2>🚨 Reservas Pendientes de Pago (Transferencia)</h2>
+        <div id="pending-reservations-container">
+            <p>Cargando reservas pendientes...</p>
         </div>
         <button class="btn-primary">Confirmar</button>
       </div>`;
