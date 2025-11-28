@@ -1,69 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instrucciones de Pago - QuinchoFinder</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .instructions-box { max-width: 600px; margin: 50px auto; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); text-align: center; }
-        .instructions-box h1 { color: var(--primary-color); }
-        .details { margin: 25px 0; padding: 15px; border: 1px dashed #ccc; background: #f9f9f9; }
-        .details p { text-align: left; margin-bottom: 10px; }
-        .details strong { font-weight: bold; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instrucciones de Pago - QuinchoFinder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">QuinchoFinder</div>
-        <nav class="nav">
-            <a href="/">Inicio</a>
-        </nav>
-    </header>
 
-    <main class="instructions-box">
-        <h1>Transferencia Pendiente</h1>
-        <p>Tu reserva ha sido creada con éxito. Para **confirmarla**, debes realizar la transferencia a la siguiente cuenta y enviar el comprobante por WhatsApp.</p>
+<header class="header">
+  <a href="/" class="logo">
+    <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
+    QuinchoFinder
+  </a>
+  <nav class="nav">
+    <a href="/">Inicio</a>
+  </nav>
+</header>
 
-        <div class="details">
-            <p><strong>Número de Reserva:</strong> <span id="reserva-id">...</span></p>
-            <p><strong>Monto Total a Pagar:</strong> <span id="monto-total">...</span></p>
-            <hr>
-            <p><strong>Banco:</strong> Banco Nación Argentina</p>
-            <p><strong>CBU:</strong> 01100000000000000000</p>
-            <p><strong>Alias:</strong> QUINCHO.FINDER.AR</p>
-        </div>
+<main class="instructions-box">
+  <h1>Transferencia pendiente</h1>
+  <p>Para confirmar la reserva, realizá la transferencia y envianos el comprobante.</p>
 
-        <a href="https://wa.me/5491100000000?text=Hola,%20acabo%20de%20hacer%20la%20transferencia%20para%20la%20reserva%20%23" target="_blank" class="btn-primary" style="padding: 15px 30px; text-decoration: none;">Enviar Comprobante por WhatsApp</a>
-        
-        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">Tu reserva será confirmada una vez que el pago sea acreditado. Esto puede tardar hasta 24 horas.</p>
-    </main>
+  <div class="details">
+    <p><strong>Reserva #:</strong> <span id="reserva-id"></span></p>
+    <p><strong>Monto total:</strong> $<span id="monto-total"></span></p>
 
-    <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder.</p>
-    </footer>
+    <hr style="margin:10px 0;" />
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const reservaId = urlParams.get('reserva_id');
-            const monto = urlParams.get('monto');
+    <p><strong>Banco:</strong> Banco Nación Argentina</p>
+    <p><strong>CBU:</strong> 01100000000000000000</p>
+    <p><strong>Alias:</strong> QUINCHO.FINDER.AR</p>
+  </div>
 
-            if (reservaId && monto) {
-                document.getElementById('reserva-id').textContent = reservaId;
-                document.getElementById('monto-total').textContent = `$${monto} ARS`;
-                
-                // Actualiza el link de WhatsApp con el ID de la reserva
-                const whatsappLink = document.querySelector('a[href*="wa.me"]');
-                if (whatsappLink) {
-                    whatsappLink.href = whatsappLink.href + reservaId;
-                }
+  <a id="wa-link" target="_blank" class="btn-primary" style="margin-top:16px">
+    Enviar comprobante por WhatsApp
+  </a>
 
-            } else {
-                document.getElementById('reserva-id').textContent = 'Error';
-                document.getElementById('monto-total').textContent = 'Monto no encontrado';
-            }
-        });
-    </script>
+  <p style="margin-top:14px; font-size:0.85rem; color:#717171">
+    La reserva se confirmará cuando el pago se acredite.
+  </p>
+</main>
+
+<footer class="footer">
+  <p>&copy; 2025 QuinchoFinder.</p>
+</footer>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const reservaId = params.get("reserva_id");
+  const monto = params.get("monto");
+
+  document.getElementById("reserva-id").textContent = reservaId;
+  document.getElementById("monto-total").textContent = monto;
+
+  document.getElementById("wa-link").href =
+    "https://wa.me/5491100000000?text=Hola,%20acabo%20de%20hacer%20la%20transferencia%20para%20la%20reserva%20#" +
+    reservaId;
+</script>
+
 </body>
 </html>

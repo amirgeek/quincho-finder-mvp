@@ -1,151 +1,177 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detalle de Quincho - QuinchoFinder</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header class="header">
-        <div class="logo">QuinchoFinder</div>
-        <nav class="nav">
-            <a href="/">Inicio</a> | <a href="/results.html">Volver a Resultados</a>
-        </nav>
+      <a href="/" class="logo">
+        <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
+        QuinchoFinder
+      </a>
+      <nav class="nav">
+        <a href="/">Inicio</a>
+        <a href="/results.html">Volver a resultados</a>
+      </nav>
     </header>
 
     <main class="detail-page-main">
-        <div class="container">
-            <h1 id="prop-title">Cargando Título del Quincho...</h1>
-            <p class="location-detail">📍 Ubicación</p>
-            
-            <div class="gallery-placeholder">
-                <img src="/images/placeholder-img-1-large.jpg" alt="Vista principal del quincho">
-            </div>
+      <div class="container">
+        <h1 id="prop-title">Cargando quincho...</h1>
+        <p class="location-detail">📍 Ubicación</p>
 
-            <section class="detail-content">
-                <div class="description-section">
-                    <h2>Descripción</h2>
-                    <p id="prop-description">Cargando descripción detallada...</p>
-                    
-                    <h3>Servicios</h3>
-                    <ul class="services-list" id="services-list">
-                        <li>Parrilla</li>
-                        <li>Pileta</li>
-                    </ul>
-
-                    <h3>Tarifas</h3>
-                    <p class="price-detail" id="prop-price">Cargando precio...</p>
-                </div>
-
-                <aside class="booking-form-aside">
-                    <h3>Solicitar Reserva Ahora</h3>
-                    <form id="booking-form" class="booking-form">
-                        
-                        <label for="date-start">Fecha y Hora de Inicio:</label>
-                        <input type="datetime-local" id="date-start" name="fecha_inicio" required>
-
-                        <label for="date-end">Fecha y Hora de Fin:</label>
-                        <input type="datetime-local" id="date-end" name="fecha_fin" required>
-
-                        <label for="name">Tu Nombre Completo:</label>
-                        <input type="text" id="name" name="nombre" required>
-
-                        <label for="phone">Teléfono (con WhatsApp):</label>
-                        <input type="tel" id="phone" name="phone" required>
-
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" required>
-                        
-                        <button type="submit" class="btn-submit">Confirmar Reserva (Generar Transferencia)</button>
-                        <p id="message-reserva" class="disclaimer">Los datos se enviarán para bloquear las fechas y generar la instrucción de pago.</p>
-                    </form>
-                </aside>
-            </section>
+        <div class="gallery-placeholder">
+          <img
+            src="/images/placeholder-img-1-large.jpg"
+            alt="Vista principal del quincho"
+          />
         </div>
+
+        <section class="detail-content">
+          <div class="description-section">
+            <h2>Descripción</h2>
+            <p id="prop-description">Cargando descripción...</p>
+
+            <h3>Servicios</h3>
+            <ul class="services-list" id="services-list">
+              <li>Parrilla</li>
+              <li>Pileta</li>
+            </ul>
+
+            <h3>Tarifas</h3>
+            <p class="price-detail" id="prop-price">Cargando precio...</p>
+          </div>
+
+          <aside class="booking-form-aside">
+            <h3>Solicitar reserva</h3>
+            <form id="booking-form" class="booking-form">
+              <label for="date-start">Fecha y hora de inicio</label>
+              <input
+                type="datetime-local"
+                id="date-start"
+                name="fecha_inicio"
+                required
+              />
+
+              <label for="date-end">Fecha y hora de fin</label>
+              <input
+                type="datetime-local"
+                id="date-end"
+                name="fecha_fin"
+                required
+              />
+
+              <label for="name">Tu nombre completo</label>
+              <input type="text" id="name" name="nombre" required />
+
+              <label for="phone">Teléfono (WhatsApp)</label>
+              <input type="tel" id="phone" name="phone" required />
+
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+
+              <button type="submit" class="btn-primary btn-submit">
+                Confirmar reserva (transferencia)
+              </button>
+              <p id="message-reserva" class="disclaimer">
+                Bloquearemos provisoriamente el espacio y te mostraremos los
+                datos para transferir.
+              </p>
+            </form>
+          </aside>
+        </section>
+      </div>
     </main>
 
     <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder.</p>
+      <p>&copy; 2025 QuinchoFinder.</p>
     </footer>
 
     <script>
-        // 1. Obtener el ID de la propiedad de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const propiedadId = urlParams.get('id');
+      const urlParams = new URLSearchParams(window.location.search);
+      const propiedadId = urlParams.get("id");
 
-        // Función placeholder para obtener detalles de la propiedad (simulación)
-        async function fetchPropertyDetails(id) {
-            // Devuelve datos fijos/simulados para que el formulario funcione
-            return {
-                nombre: "Quincho de Prueba Funcional (ID: " + id + ")",
-                descripcion: "Este es un quincho de prueba con todos los servicios. ¡Tu reserva lo bloqueará!",
-                precio_dia: 55000,
-            };
+      async function fetchPropertyDetails(id) {
+        return {
+          nombre: "Quincho de Prueba Funcional (ID: " + id + ")",
+          descripcion:
+            "Quincho de prueba con todos los servicios. Tu reserva lo bloqueará.",
+          precio_dia: 55000,
+        };
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        if (!propiedadId) {
+          document.getElementById("prop-title").textContent =
+            "Error: ID de propiedad no encontrado.";
+          return;
         }
 
-        // 2. Llenar los placeholders y manejar el formulario
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!propiedadId) {
-                document.getElementById('prop-title').textContent = "Error: ID de propiedad no encontrado.";
-                return;
+        const details = await fetchPropertyDetails(propiedadId);
+        document.getElementById("prop-title").textContent = details.nombre;
+        document.getElementById("prop-description").textContent =
+          details.descripcion;
+        document.getElementById(
+          "prop-price"
+        ).textContent = `$${details.precio_dia} / día (estimado)`;
+
+        document
+          .getElementById("booking-form")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const messageElement = document.getElementById("message-reserva");
+            messageElement.textContent =
+              "Procesando reserva y bloqueo de fechas...";
+
+            const montoTotal = details.precio_dia;
+
+            const payload = {
+              propiedad_id: parseInt(propiedadId),
+              nombre_inquilino: form.nombre.value,
+              email_inquilino: form.email.value,
+              telefono_inquilino: form.phone.value,
+              fecha_inicio: form.querySelector(
+                'input[name="fecha_inicio"]'
+              ).value,
+              fecha_fin: form.querySelector('input[name="fecha_fin"]').value,
+              monto_total: montoTotal,
+            };
+
+            try {
+              const response = await fetch("/api/publico/reservar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              const data = await response.json();
+
+              if (response.ok) {
+                const reservaId = data.reserva.id;
+                messageElement.style.color = "blue";
+                messageElement.innerHTML = `✅ Reserva #${reservaId} creada. Redirigiendo a las instrucciones de pago...`;
+                form.reset();
+
+                setTimeout(() => {
+                  window.location.href = `/pago_instrucciones.html?reserva_id=${reservaId}&monto=${montoTotal}`;
+                }, 2000);
+              } else {
+                messageElement.style.color = "red";
+                messageElement.textContent =
+                  data.error ||
+                  "Error al crear la reserva. Verifica disponibilidad.";
+              }
+            } catch (error) {
+              messageElement.style.color = "red";
+              messageElement.textContent =
+                "Error de conexión con el servidor.";
             }
-
-            const details = await fetchPropertyDetails(propiedadId);
-            document.getElementById('prop-title').textContent = details.nombre;
-            document.getElementById('prop-description').textContent = details.descripcion;
-            document.getElementById('prop-price').textContent = `$${details.precio_dia} / Día (Costo Estimado)`;
-            
-            // Manejador del Formulario de Reserva
-            document.getElementById('booking-form').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const form = e.target;
-                const messageElement = document.getElementById('message-reserva');
-                messageElement.textContent = 'Procesando reserva y bloqueo de fechas...';
-
-                // Simulación de cálculo de monto total
-                const montoTotal = details.precio_dia; 
-
-                const payload = {
-                    propiedad_id: parseInt(propiedadId),
-                    nombre_inquilino: form.nombre.value,
-                    email_inquilino: form.email.value,
-                    telefono_inquilino: form.phone.value,
-                    fecha_inicio: form.querySelector('input[name="fecha_inicio"]').value,
-                    fecha_fin: form.querySelector('input[name="fecha_fin"]').value,
-                    monto_total: montoTotal
-                };
-
-                try {
-                    const response = await fetch('/api/publico/reservar', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        const reservaId = data.reserva.id;
-                        messageElement.style.color = 'blue';
-                        messageElement.innerHTML = `✅ Reserva #${reservaId} creada. Redirigiendo a instrucciones de pago...`;
-                        form.reset();
-                        
-                        // *** REDIRECCIÓN A LA PÁGINA DE INSTRUCCIONES ***
-                        setTimeout(() => {
-                            window.location.href = `/pago_instrucciones.html?reserva_id=${reservaId}&monto=${montoTotal}`; 
-                        }, 2000);
-                    } else {
-                        messageElement.style.color = 'red';
-                        messageElement.textContent = data.error || 'Error al crear la reserva. Verifique si el espacio ya está ocupado.';
-                    }
-                } catch (error) {
-                    messageElement.style.color = 'red';
-                    messageElement.textContent = 'Error de conexión con el servidor.';
-                }
-            });
-        });
+          });
+      });
     </script>
-</body>
+  </body>
 </html>

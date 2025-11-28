@@ -1,113 +1,136 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuinchoFinder - Estilo Brubank</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuinchoFinder</title>
 
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header class="header">
-        <a href="/" class="logo">
-            <img src="/images/quincho-finder-logo.png" alt="Logo">
-
-        </a>
-        <nav class="nav">
-            <a href="/" class="active">Inicio</a>
-            <a href="/register.html">Registrarse</a>
-            <a href="/login.html" class="btn-primary">Iniciar Sesión</a>
-        </nav>
+      <a href="/" class="logo">
+        <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
+        QuinchoFinder
+      </a>
+      <nav class="nav">
+        <a href="/" class="active">Inicio</a>
+        <a href="/register.html">Registrarse</a>
+        <a href="/login.html" class="btn-primary">Iniciar Sesión</a>
+      </nav>
     </header>
 
     <main class="main-content">
-        <div class="hero-content">
-            <h1>Reserva tu espacio ideal hoy</h1>
-            <p>La forma más simple y segura de alquilar quinchos y clubhouses.</p>
+      <section class="hero-content">
+        <h1>Reservá el quincho ideal para tu próximo evento</h1>
+        <p>Buscá, elegí y solicitá tu reserva en minutos.</p>
+      </section>
+
+      <section class="search-container">
+        <div class="filters-toggle" onclick="toggleFilters()">
+          <i class="fas fa-sliders-h"></i>
+          Filtros
+          <i class="fas fa-chevron-down" id="filter-arrow"></i>
         </div>
-        
-        <div class="search-container">
-            <div class="filters-toggle" onclick="toggleFilters()">
-                <i class="fas fa-sliders-h"></i> Filtros <i class="fas fa-chevron-down" id="filter-arrow"></i>
+
+        <form id="search-form" class="search-form">
+          <div class="filters-container" id="filters-container">
+            <div class="form-group">
+              <label>Tipo</label>
+              <select name="tipo">
+                <option value="">Todos</option>
+                <option value="quincho">Quincho</option>
+              </select>
             </div>
+            <div class="form-group">
+              <label>Invitados</label>
+              <input type="number" name="capacidad" placeholder="Ej: 20" />
+            </div>
+            <div class="form-group">
+              <label>Precio Máx</label>
+              <input type="number" name="precio_max" placeholder="$" />
+            </div>
+          </div>
 
-            <form id="search-form" class="search-form">
-                <div class="filters-container" id="filters-container">
-                    <div class="form-group">
-                        <label>Tipo</label>
-                        <select name="tipo"><option value="">Todos</option><option value="quincho">Quincho</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label>Invitados</label>
-                        <input type="number" name="capacidad" placeholder="Ej: 20">
-                    </div>
-                    <div class="form-group">
-                        <label>Precio Máx</label>
-                        <input type="number" name="precio_max" placeholder="$">
-                    </div>
-                </div>
+          <div class="form-group">
+            <label>Ubicación</label>
+            <input
+              type="text"
+              name="ciudad"
+              placeholder="Ej: Mar del Plata"
+              required
+            />
+          </div>
 
-                <div class="form-group">
-                    <label>Ubicación</label>
-                    <input type="text" name="ciudad" placeholder="Ej: Palermo" required>
-                </div>
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" name="fecha" required>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn-search">Buscar</button>
-                </div>
-            </form>
-        </div>
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" name="fecha" required />
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn-primary btn-search">Buscar</button>
+          </div>
+        </form>
+      </section>
     </main>
 
     <section class="features-section">
-        <h2>Experiencia Premium</h2>
-        <div class="feature-cards">
-            <div class="card">
-                <h3><i class="fas fa-bolt"></i> Rápido</h3>
-                <p>Reserva en segundos.</p>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-shield-alt"></i> Seguro</h3>
-                <p>Usuarios verificados.</p>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-heart"></i> Simple</h3>
-                <p>Diseño intuitivo.</p>
-            </div>
+      <h2>Una experiencia pensada para festejar sin estrés</h2>
+      <div class="feature-cards">
+        <div class="card">
+          <h3><i class="fas fa-bolt"></i> Rápido</h3>
+          <p>Encontrá quinchos disponibles en segundos.</p>
         </div>
+        <div class="card">
+          <h3><i class="fas fa-shield-alt"></i> Seguro</h3>
+          <p>Reservas claras, datos protegidos.</p>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-heart"></i> Simple</h3>
+          <p>Una interfaz pensada para usar sin manual.</p>
+        </div>
+      </div>
     </section>
 
     <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder.</p>
+      <p>&copy; 2025 QuinchoFinder.</p>
     </footer>
 
     <script>
-        function toggleFilters() {
-            document.getElementById('filters-container').classList.toggle('active');
-        }
+      function toggleFilters() {
+        document
+          .getElementById("filters-container")
+          .classList.toggle("active");
+      }
 
-        document.getElementById('search-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const params = new URLSearchParams(formData);
-            
-            try {
-                const response = await fetch(`/api/publico/buscar?${params.toString()}`);
-                const data = await response.json();
-                localStorage.setItem('searchResults', JSON.stringify(data));
-                localStorage.setItem('searchParams', JSON.stringify(Object.fromEntries(formData)));
-                window.location.href = '/results.html'; 
-            } catch (error) {
-                alert('Error de conexión. Verifica npm start.');
-            }
+      document
+        .getElementById("search-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const params = new URLSearchParams(formData);
+
+          try {
+            const response = await fetch(`/api/publico/buscar?${params}`);
+            const data = await response.json();
+            localStorage.setItem("searchResults", JSON.stringify(data));
+            localStorage.setItem(
+              "searchParams",
+              JSON.stringify(Object.fromEntries(formData))
+            );
+            window.location.href = "/results.html";
+          } catch (error) {
+            alert("Error de conexión. Verifica npm start.");
+          }
         });
     </script>
-</body>
+  </body>
 </html>

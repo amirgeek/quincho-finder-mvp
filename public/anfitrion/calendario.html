@@ -1,130 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario - QuinchoFinder</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <style>
-        .calendar-container { max-width: 900px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendario de Reservas - QuinchoFinder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../styles.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">QuinchoFinder</div>
-        <nav class="nav">
-            <a href="/anfitrion/dashboard.html">Dashboard</a>
-            <button onclick="logout()" class="btn-primary" style="padding: 5px 10px;">Cerrar Sesión</button>
-        </nav>
-    </header>
 
-    <main class="calendar-container">
-        <h1 id="prop-title">Calendario de Propiedad</h1>
-        <p>Haz clic y arrastra para bloquear fechas. Los eventos en rojo están bloqueados o reservados.</p>
-        <div id='calendar'></div>
-    </main>
+<header class="header">
+  <a href="/" class="logo">
+    <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
+    QuinchoFinder
+  </a>
+  <nav class="nav">
+    <a href="/anfitrion/dashboard.html">Dashboard</a>
+    <a href="/anfitrion/calendario.html" class="active">Calendario</a>
+  </nav>
+</header>
 
-    <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder.</p>
-    </footer>
+<main class="calendar-container">
+  <h1>Calendario de Reservas</h1>
+  <p>Visualizá las fechas reservadas y eventos próximos.</p>
 
-    <script>
-        const AUTH_TOKEN = localStorage.getItem('authToken');
-        
-        function logout() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userRole');
-            window.location.href = '/login.html';
-        }
-        
-        // --- Obtener ID y Protección ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const propiedadId = urlParams.get('id');
+  <div id="calendar"></div>
+</main>
 
-        if (!propiedadId || !AUTH_TOKEN) {
-            alert('Acceso no autorizado o ID de propiedad faltante.');
-            logout();
-        }
+<footer class="footer">
+  <p>&copy; 2025 QuinchoFinder.</p>
+</footer>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('prop-title').textContent += ` (ID: ${propiedadId})`;
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                selectable: true,
-                locale: 'es', 
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                
-                // Carga inicial de eventos (bloqueos y reservas)
-                events: async function(fetchInfo, successCallback, failureCallback) {
-                    try {
-                        const response = await fetch(`/api/anfitrion/disponibilidad/propiedad/${propiedadId}`, {
-                            headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
-                        });
-                        const data = await response.json();
-                        
-                        const events = data.map(item => ({
-                            title: item.estado === 'reservado' ? 'RESERVADO' : 'BLOQUEADO',
-                            start: item.fecha + 'T' + item.hora_inicio,
-                            end: item.fecha + 'T' + item.hora_fin,
-                            color: item.estado === 'reservado' ? '#FF5722' : '#FF9800' // Rojo/Naranja
-                        }));
-                        successCallback(events);
-                    } catch (error) {
-                        failureCallback(error);
-                    }
-                },
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const calendarEl = document.getElementById("calendar");
 
-                // Lógica al seleccionar un rango de tiempo para BLOQUEAR
-                select: function(info) {
-                    if (confirm(`¿Deseas bloquear el período del ${info.startStr.split('T')[0]} hasta ${info.endStr.split('T')[0]}?`)) {
-                        handleBlock(info.startStr, info.endStr);
-                    }
-                    calendar.unselect();
-                }
-            });
-            calendar.render();
-        });
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth",
+      events: [
+        {
+          title: "Reserva – Juan Pérez",
+          start: "2025-02-15",
+        },
+      ],
+    });
 
-        // Función para enviar el bloqueo al Backend
-        async function handleBlock(startStr, endStr) {
-            const startDate = new Date(startStr);
-            const endDate = new Date(endStr);
-            
-            const payload = {
-                propiedad_id: parseInt(propiedadId),
-                fecha: startDate.toISOString().split('T')[0],
-                hora_inicio: '00:00:00', // Simplificado para bloqueo de día completo
-                hora_fin: '23:59:00'
-            };
+    calendar.render();
+  });
+</script>
 
-            try {
-                 const response = await fetch('/api/anfitrion/disponibilidad/bloquear', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${AUTH_TOKEN}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    alert('Bloqueo registrado con éxito!');
-                    window.location.reload();
-                } else {
-                    const data = await response.json();
-                    alert(`Error al bloquear: ${data.error || 'Verifique en la consola del servidor.'}`);
-                }
-            } catch (error) {
-                alert('Error de conexión al servidor.');
-            }
-        }
-    </script>
 </body>
 </html>

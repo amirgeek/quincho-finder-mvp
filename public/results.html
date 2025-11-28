@@ -1,79 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resultados de Búsqueda - QuinchoFinder</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <header class="header">
-        <div class="logo">QuinchoFinder</div>
-        <nav class="nav">
-            <a href="/">Inicio</a>
-        </nav>
+      <a href="/" class="logo">
+        <img src="/images/quincho-finder-logo.png" alt="QuinchoFinder" />
+        QuinchoFinder
+      </a>
+      <nav class="nav">
+        <a href="/">Inicio</a>
+      </nav>
     </header>
 
     <main class="results-page-main">
-        <div class="container">
-            <h2 id="results-title">Cargando Resultados...</h2>
-            <p class="summary"></p>
+      <div class="container">
+        <h2 id="results-title">Cargando resultados...</h2>
+        <p class="summary"></p>
 
-            <section class="property-list">
-                </section>
-        </div>
+        <section class="property-list"></section>
+      </div>
     </main>
 
     <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder.</p>
+      <p>&copy; 2025 QuinchoFinder.</p>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const resultsContainer = document.querySelector('.property-list');
-            const summaryElement = document.querySelector('.summary');
-            const titleElement = document.getElementById('results-title');
-            
-            const searchParams = JSON.parse(localStorage.getItem('searchParams'));
-            const results = JSON.parse(localStorage.getItem('searchResults'));
+      document.addEventListener("DOMContentLoaded", () => {
+        const resultsContainer = document.querySelector(".property-list");
+        const summaryElement = document.querySelector(".summary");
+        const titleElement = document.getElementById("results-title");
 
-            if (!searchParams) {
-                // Caso si el usuario va directamente a results.html
-                titleElement.textContent = 'Inicia una búsqueda';
-                summaryElement.textContent = 'Por favor, usa la página de inicio para buscar espacios.';
-                return;
-            }
+        const searchParams = JSON.parse(localStorage.getItem("searchParams"));
+        const results = JSON.parse(localStorage.getItem("searchResults"));
 
-            titleElement.textContent = `Quinchos Disponibles en "${searchParams.ciudad}" para el ${searchParams.fecha}`;
-            
-            if (results && results.length > 0) {
-                summaryElement.textContent = `Se encontraron ${results.length} propiedades que cumplen con tu búsqueda.`;
-                
-                results.forEach(quincho => {
-                    // Genera el HTML de la tarjeta usando los datos de PostgreSQL
-                    const cardHTML = `
-                        <article class="property-card">
-                            <img src="/images/placeholder-img-1.jpg" alt="Imagen de ${quincho.nombre}" class="property-image">
-                            <div class="property-info">
-                                <h3>${quincho.nombre}</h3>
-                                <p class="location">📍 ${quincho.ciudad}</p>
-                                <p class="details">Precio: $${quincho.precio_dia} / Día.</p>
-                                <div class="price-action">
-                                    <span class="price">$${quincho.precio_dia} / Día</span>
-                                    <a href="/detalle.html?id=${quincho.id}" class="btn-primary">Ver Detalles</a>
-                                </div>
-                            </div>
-                        </article>
-                    `;
-                    resultsContainer.innerHTML += cardHTML;
-                });
+        if (!searchParams) {
+          titleElement.textContent = "Inicia una búsqueda";
+          summaryElement.textContent =
+            "Por favor, usa la página de inicio para buscar espacios.";
+          return;
+        }
 
-            } else {
-                summaryElement.textContent = `No se encontraron propiedades en "${searchParams.ciudad}" para la fecha solicitada.`;
-                resultsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Intenta con otra ciudad, fecha o revisa que hayas cargado quinchos como anfitrión.</p>';
-            }
-        });
+        titleElement.textContent = `Quinchos en "${searchParams.ciudad}" para el ${searchParams.fecha}`;
+
+        if (results && results.length > 0) {
+          summaryElement.textContent = `Se encontraron ${results.length} propiedades que cumplen con tu búsqueda.`;
+
+          results.forEach((quincho) => {
+            const cardHTML = `
+              <article class="property-card">
+                <img src="/images/placeholder-img-1.jpg" alt="Imagen de ${
+                  quincho.nombre
+                }" class="property-image" />
+                <div class="property-info">
+                  <h3>${quincho.nombre}</h3>
+                  <p class="location">📍 ${quincho.ciudad}</p>
+                  <p class="details">Precio: $${quincho.precio_dia} / día</p>
+                  <div class="price-action">
+                    <span class="price">$${quincho.precio_dia}</span>
+                    <a href="/detail.html?id=${
+                      quincho.id
+                    }" class="btn-primary">Ver detalles</a>
+                  </div>
+                </div>
+              </article>
+            `;
+            resultsContainer.innerHTML += cardHTML;
+          });
+        } else {
+          summaryElement.textContent = `No se encontraron propiedades en "${searchParams.ciudad}" para la fecha seleccionada.`;
+          resultsContainer.innerHTML =
+            '<p style="padding: 20px; text-align: center;">Probá con otra fecha o zona.</p>';
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
