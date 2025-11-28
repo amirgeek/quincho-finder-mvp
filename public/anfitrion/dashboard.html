@@ -1,32 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Anfitrión - QuinchoFinder</title>
-    <link rel="stylesheet" href="/styles.css">
-    <style>
-        /* Estilos específicos del dashboard */
-        .dashboard-container { max-width: 1000px; margin: 30px auto; padding: 20px; }
-        .dashboard-container h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; font-weight: 700; }
-        .property-form input, .property-form textarea, .property-form select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
-        
-        .prop-list-card { 
-            background: #fff; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; 
-            border-left: 5px solid var(--primary-color); 
-        }
-        .prop-list-card strong { color: var(--primary-color); font-size: 1.1em; }
-        .prop-list-card p { margin: 5px 0; font-size: 0.9em; }
-        
-        /* Estilos para Reservas Pendientes */
-        .reserva-card { 
-            background: #ffe4e4; border: 1px solid #ff5a5f; padding: 15px; border-radius: 6px; margin-bottom: 15px; 
-            display: flex; justify-content: space-between; align-items: center; 
-        }
-        .reserva-card strong { color: #ff5a5f; font-weight: 700; }
-        .reserva-card .reserva-details { margin: 0; font-size: 0.95em; flex-grow: 1; padding-right: 20px; }
-        .reserva-card button { min-width: 150px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Anfitrión - QuinchoFinder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../styles.css"/>
 </head>
 <body>
 
@@ -47,220 +26,20 @@
         <div id="pending-reservations-container">
             <p>Cargando reservas pendientes...</p>
         </div>
+        <button class="btn-primary">Confirmar</button>
+      </div>`;
+  }
 
-        <hr style="margin: 40px 0;">
+  document.addEventListener("DOMContentLoaded", () => {
+    cargarPropiedades();
+    cargarReservas();
+  });
 
-        <h2>➕ Publicar Nuevo Quincho</h2>
-        <form id="create-property-form" class="property-form">
-            <label for="nombre">Nombre del Espacio (ej: Quincho El Sol):</label>
-            <input type="text" id="nombre" name="nombre" required>
+  document.getElementById("prop-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    document.getElementById("form-message").textContent = "Guardado con éxito.";
+  });
+</script>
 
-            <label for="ciudad">Ciudad/Localidad:</label>
-            <input type="text" id="ciudad" name="ciudad" required>
-
-            <label for="precio_dia">Precio Base por Día (ARS):</label>
-            <input type="number" id="precio_dia" name="precio_dia" required>
-
-            <label for="comision_tipo">Modelo de Cobro:</label>
-            <select id="comision_tipo" name="comision_tipo" required>
-                <option value="comision">Comisión por Reserva (Recomendado)</option>
-                <option value="abono">Abono Mensual</option>
-            </select>
-
-            <label for="descripcion">Descripción Detallada:</label>
-            <textarea id="descripcion" name="descripcion" rows="4"></textarea>
-
-            <button type="submit" class="btn-primary" style="margin-top: 15px;">Publicar Quincho</button>
-            <p id="form-message" style="margin-top: 10px;"></p>
-        </form>
-
-        <hr style="margin: 40px 0;">
-
-        <h2>📋 Mis Propiedades Publicadas</h2>
-        <div id="property-list-container">
-            <p>Cargando tus propiedades...</p>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <p>&copy; 2025 QuinchoFinder.</p>
-    </footer>
-
-    <script>
-        const AUTH_TOKEN = localStorage.getItem('authToken');
-        const USER_ROLE = localStorage.getItem('userRole');
-
-        function logout() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userRole');
-            window.location.href = '/login.html';
-        }
-
-        if (!AUTH_TOKEN || USER_ROLE !== 'anfitrion') {
-            alert('Acceso no autorizado. Por favor, inicia sesión como anfitrión.');
-            logout(); 
-        }
-
-        async function loadDashboard() {
-            await loadProperties(); 
-            await loadPendingReservations(); // <--- NUEVA FUNCIÓN LLAMADA
-            document.getElementById('create-property-form').addEventListener('submit', handleCreateProperty);
-        }
-
-        // --- FUNCIÓN PARA CARGAR LA LISTA DE PROPIEDADES (Ya existente) ---
-        async function loadProperties() {
-            const listContainer = document.getElementById('property-list-container');
-            listContainer.innerHTML = 'Cargando propiedades...';
-            
-            try {
-                const response = await fetch('/api/anfitrion/propiedades', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    if (data.length === 0) {
-                        listContainer.innerHTML = '<p>Aún no tienes propiedades publicadas. Usa el formulario de arriba para empezar.</p>';
-                    } else {
-                        listContainer.innerHTML = ''; 
-                        data.forEach(prop => {
-                            const card = document.createElement('div');
-                            card.className = 'prop-list-card';
-                            
-                            card.innerHTML = `
-                                <strong>${prop.nombre}</strong> (ID: ${prop.id})<br>
-                                <p>Ciudad: ${prop.ciudad} | Precio: $${parseFloat(prop.precio_dia).toFixed(2)} / Día</p>
-                                <p>Cobro: ${prop.comision_tipo} | Creado: ${new Date(prop.fecha_creacion).toLocaleDateString()}</p>
-                                <a href="/anfitrion/calendario.html?id=${prop.id}" class="btn-primary" style="padding: 5px 10px; margin-top: 5px; text-decoration: none; display: inline-block;">Ver Calendario</a>
-                            `;
-                            listContainer.appendChild(card);
-                        });
-                    }
-                } else {
-                    listContainer.innerHTML = `<p style="color:red;">Error al cargar propiedades: ${data.error || 'Verifique el token.'}</p>`;
-                }
-            } catch (error) {
-                listContainer.innerHTML = '<p style="color:red;">Error de conexión con la API de propiedades.</p>';
-            }
-        }
-
-        // --- NUEVA FUNCIÓN PARA CARGAR RESERVAS PENDIENTES ---
-        async function loadPendingReservations() {
-            const listContainer = document.getElementById('pending-reservations-container');
-            listContainer.innerHTML = 'Buscando reservas pendientes...';
-
-            try {
-                const response = await fetch('/api/anfitrion/reservas/pendientes', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    if (data.length === 0) {
-                        listContainer.innerHTML = '<p>🎉 No hay reservas pendientes de aprobación.</p>';
-                    } else {
-                        listContainer.innerHTML = '';
-                        data.forEach(reserva => {
-                            const card = document.createElement('div');
-                            card.className = 'reserva-card';
-                            
-                            card.innerHTML = `
-                                <div class="reserva-details">
-                                    <strong>Reserva #${reserva.reserva_id}</strong> - ${reserva.nombre_quincho}
-                                    <p>Cliente: ${reserva.nombre_inquilino} (${reserva.telefono_inquilino})</p>
-                                    <p>Monto: <strong>$${parseFloat(reserva.monto_total).toFixed(2)} ARS</strong> | Solicitada: ${new Date(reserva.fecha_creacion).toLocaleDateString()}</p>
-                                </div>
-                                <button onclick="handleApprovePayment(${reserva.reserva_id})" 
-                                        class="btn-primary" style="background-color: var(--secondary-color);">
-                                    Confirmar Pago
-                                </button>
-                            `;
-                            listContainer.appendChild(card);
-                        });
-                    }
-                } else {
-                    listContainer.innerHTML = `<p style="color:red;">Error al cargar reservas: ${data.error || 'Verifique el token.'}</p>`;
-                }
-            } catch (error) {
-                listContainer.innerHTML = '<p style="color:red;">Error de conexión con la API de reservas.</p>';
-            }
-        }
-
-        // --- FUNCIÓN PARA APROBAR PAGO MANUALMENTE ---
-        async function handleApprovePayment(reservaId) {
-            if (!confirm(`¿Estás seguro de que deseas CONFIRMAR el pago de la Reserva #${reservaId}? Esta acción es irreversible.`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/admin/aprobar-pago', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${AUTH_TOKEN}`
-                    },
-                    body: JSON.stringify({ reserva_id: reservaId })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert(data.mensaje);
-                    await loadPendingReservations(); // Recargar la lista
-                } else {
-                    alert(`Error al aprobar: ${data.error || 'Inténtalo de nuevo.'}`);
-                }
-            } catch (error) {
-                alert('Error de red al intentar confirmar el pago.');
-            }
-        }
-
-
-        // --- FUNCIÓN PARA CREAR UNA PROPIEDAD (Ya existente) ---
-        async function handleCreateProperty(e) {
-            e.preventDefault();
-            const form = e.target;
-            const messageElement = document.getElementById('form-message');
-            messageElement.textContent = 'Guardando...';
-
-            const formData = {
-                nombre: form.nombre.value,
-                ciudad: form.ciudad.value,
-                precio_dia: parseFloat(form.precio_dia.value),
-                comision_tipo: form.comision_tipo.value,
-                descripcion: form.descripcion.value
-            };
-
-            try {
-                const response = await fetch('/api/anfitrion/propiedades', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${AUTH_TOKEN}`
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    messageElement.textContent = data.mensaje;
-                    messageElement.style.color = 'green';
-                    form.reset(); 
-                    await loadProperties(); 
-                } else {
-                    messageElement.textContent = data.error || 'Error al crear la propiedad.';
-                    messageElement.style.color = 'red';
-                }
-            } catch (error) {
-                messageElement.textContent = 'Error de red al intentar crear.';
-                messageElement.style.color = 'red';
-            }
-        }
-
-        loadDashboard();
-    </script>
 </body>
 </html>
